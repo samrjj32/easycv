@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Pencil } from "lucide-react";
+import { Pencil, ChevronLeft } from "lucide-react";
 import { useResumeStore } from "@/lib/store/useResumeStore";
 import { BasicInfoEditor } from "./BasicInfoEditor";
 import { ExperienceEditor } from "./ExperienceEditor";
@@ -12,7 +12,7 @@ import { SummaryEditor } from "./SummaryEditor";
 import { CustomEditor } from "./CustomEditor";
 
 export function EditPanel() {
-  const { activeResume, updateResume } = useResumeStore();
+  const { activeResume, updateResume, setMobileEditorView } = useResumeStore();
 
   if (!activeResume) return null;
 
@@ -42,7 +42,13 @@ export function EditPanel() {
   return (
     <div className="h-full flex flex-col overflow-hidden bg-white">
       {/* Panel header */}
-      <div className="px-5 py-3.5 border-b bg-gray-50/50 shrink-0 flex items-center gap-2.5">
+      <div className="px-3 sm:px-5 py-3.5 border-b bg-gray-50/50 shrink-0 flex items-center gap-2">
+        <button
+          onClick={() => setMobileEditorView("menu")}
+          className="lg:hidden p-1.5 -ml-1 text-gray-500 hover:text-gray-900 hover:bg-gray-200 rounded-lg transition-colors"
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </button>
         <span className="text-xl leading-none">{currentSection?.icon}</span>
         <div className="flex-1 min-w-0">
           {activeSection === "basic" ? (

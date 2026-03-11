@@ -7,18 +7,20 @@ import { useReactToPrint } from "react-to-print";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, Suspense, useRef, useState } from "react";
 import Link from "next/link";
-import { FileText, Save, Share2, Sparkles, ChevronLeft } from "lucide-react";
+import { FileText, Save, Share2, Sparkles, ChevronLeft, Pencil } from "lucide-react";
 import { SidePanel } from "@/components/resume-builder/SidePanel";
 import { EditPanel } from "@/components/resume-builder/EditPanel";
 import { PreviewDock } from "@/components/resume-builder/PreviewDock";
 import { TemplateSelector } from "@/components/resume-builder/TemplateSelector";
+import { cn } from "@/lib/utils";
 
 function ResumeBuilderInner() {
-  const { activeResume, setActiveResume, createResume, updateResume } = useResumeStore();
+  const { activeResume, setActiveResume, createResume, updateResume, mobileEditorView } = useResumeStore();
   const searchParams = useSearchParams();
   const router = useRouter();
   const resumeRef = useRef<HTMLDivElement>(null);
   const [templateSelectorOpen, setTemplateSelectorOpen] = useState(false);
+  const [mobileTab, setMobileTab] = useState<"edit" | "preview">("edit");
 
   const handlePrint = useReactToPrint({
     contentRef: resumeRef,
@@ -111,27 +113,76 @@ function ResumeBuilderInner() {
       </header>
 
       {/* 3-column body */}
-      <main className="flex-1 flex flex-row overflow-hidden min-h-0">
+      <main className="flex-1 flex flex-row overflow-hidden min-h-0 relative">
         {/* Column 1: Module list sidebar */}
-        <div className="w-[220px] shrink-0 border-r border-gray-200 bg-gray-50/50 overflow-y-auto">
+        <div className={cn(
+          "shrink-0 border-r border-gray-200 bg-gray-50/50 overflow-y-auto",
+          "w-full lg:w-[220px]",
+          (mobileTab === "edit" && mobileEditorView === "menu") ? "block" : "hidden lg:block"
+        )}>
           <SidePanel />
         </div>
 
         {/* Column 2: Editor panel */}
-        <div className="w-[420px] shrink-0 border-r border-gray-200 bg-white overflow-y-auto">
+        <div className={cn(
+          "shrink-0 border-r border-gray-200 bg-white overflow-y-auto",
+          "w-full lg:w-[420px]",
+          (mobileTab === "edit" && mobileEditorView === "form") ? "block" : "hidden lg:block"
+        )}>
           <EditPanel />
         </div>
 
         {/* Column 3: Preview + Dock */}
-        <div className="flex-1 flex flex-row overflow-hidden">
-          <div className="flex-1 bg-gray-100 overflow-y-auto flex justify-center items-start p-6">
-            <div className="w-full max-w-[816px] shadow-xl bg-white origin-top">
-              <TemplateRenderer resumeRef={resumeRef} />
+        <div className={cn(
+          "flex-1 flex flex-row overflow-hidden",
+          mobileTab === "preview" ? "flex" : "hidden lg:flex"
+        )}>
+          <div className="flex-1 bg-gray-100 overflow-y-auto overflow-x-hidden flex flex-col items-center p-4 sm:p-6" style={{
+            // Add a CSS variable to calculate scale for mobile based on A4 width (794px)
+            // @ts-ignore
+            "--mobile-scale": "clamp(0.4, calc((100vw - 32px) / 794), 1)"
+          }}>
+            <div 
+              className="origin-top shadow-xl transition-transform" 
+              style={{ 
+                transform: "scale(var(--mobile-scale, 1))",
+                transformOrigin: "top center",
+                width: "794px",
+                marginBottom: "calc(1123px * (var(--mobile-scale, 1) - 1))" // Reduce the bounding box height to avoid massive whitespace at the bottom
+              }}
+            >
+              <div className="bg-white">
+                <TemplateRenderer resumeRef={resumeRef} />
+              </div>
             </div>
           </div>
           <PreviewDock onPrint={() => handlePrint()} />
         </div>
       </main>
+
+      {/* Mobile Bottom Navigation */}
+      <div className="lg:hidden shrink-0 border-t border-gray-200 bg-white flex items-center justify-around p-2 pb-safe shadow-[0_-4px_10px_rgba(0,0,0,0.05)] z-20">
+        <button
+          onClick={() => setMobileTab("edit")}
+          className={cn(
+            "flex flex-col items-center gap-1 p-2 rounded-lg text-xs font-medium min-w-[80px]",
+            mobileTab === "edit" ? "text-blue-600 bg-blue-50" : "text-gray-500 hover:text-gray-900"
+          )}
+        >
+          <Pencil className="w-5 h-5" />
+          Edit
+        </button>
+        <button
+          onClick={() => setMobileTab("preview")}
+          className={cn(
+            "flex flex-col items-center gap-1 p-2 rounded-lg text-xs font-medium min-w-[80px]",
+            mobileTab === "preview" ? "text-blue-600 bg-blue-50" : "text-gray-500 hover:text-gray-900"
+          )}
+        >
+          <Sparkles className="w-5 h-5" />
+          Preview
+        </button>
+      </div>
 
       {/* Template selector dialog */}
       <TemplateSelector

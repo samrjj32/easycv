@@ -7,8 +7,10 @@ interface ResumeStore {
   resumes: Record<string, ResumeData>;
   activeResumeId: string | null;
   activeResume: ResumeData | null;
+  mobileEditorView: "menu" | "form";
 
   // Global Actions
+  setMobileEditorView: (view: "menu" | "form") => void;
   createResume: (templateId?: string | null) => string;
   updateResume: (resumeId: string, data: Partial<ResumeData>) => void;
   deleteResume: (resumeId: string) => void;
@@ -102,6 +104,7 @@ export const useResumeStore = create<ResumeStore>()(
       resumes: { "default": initialResume },
       activeResumeId: "default",
       activeResume: initialResume,
+      mobileEditorView: "menu",
 
       createResume: (templateId = null) => {
         const id = generateUUID();
@@ -147,11 +150,13 @@ export const useResumeStore = create<ResumeStore>()(
       },
 
       setActiveResume: (resumeId) => {
-        set((state) => ({
-          activeResumeId: resumeId,
-          activeResume: state.resumes[resumeId] || null,
-        }));
+        set((state) => {
+          const resumeItem = state.resumes[resumeId];
+          return { activeResume: resumeItem || null, activeResumeId: resumeId, mobileEditorView: "menu" };
+        });
       },
+
+      setMobileEditorView: (view: "menu" | "form") => set({ mobileEditorView: view }),
 
       duplicateResume: (resumeId) => {
         const id = generateUUID();

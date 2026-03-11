@@ -115,18 +115,19 @@ function ModuleItem({
 
 export function SidePanel() {
   const {
+    activeResumeId,
     activeResume,
+    updateResume,
     setActiveSection,
+    setMobileEditorView,
     toggleSectionVisibility,
-    reorderSections,
     setThemeColor,
     updateGlobalSettings,
-    updateResume,
   } = useResumeStore();
 
   if (!activeResume) return null;
 
-  const { menuSections = [], activeSection, globalSettings = {} } = activeResume;
+  const { menuSections = [], activeSection = "basic", globalSettings = {} } = activeResume;
   const {
     themeColor = "#000000",
     baseFontSize = 14,
@@ -137,6 +138,17 @@ export function SidePanel() {
     headerSize = 18,
     subheaderSize = 14,
   } = globalSettings;
+
+  // Handle reorder
+  const handleReorder = (newOrder: MenuSection[]) => {
+    if (!activeResumeId) return;
+    updateResume(activeResumeId, { menuSections: newOrder });
+  };
+
+  const handleSelect = (id: string) => {
+    setActiveSection(id);
+    setMobileEditorView("form");
+  };
 
   const basicSection = menuSections.find((s) => s.id === "basic");
   const draggableSections = menuSections.filter((s) => s.id !== "basic");
@@ -164,7 +176,7 @@ export function SidePanel() {
             item={basicSection}
             isActive={activeSection === basicSection.id}
             isBasic
-            onSelect={() => setActiveSection(basicSection.id)}
+            onSelect={() => handleSelect(basicSection.id)}
             onToggle={(e) => { e.stopPropagation(); toggleSectionVisibility(basicSection.id); }}
           />
         )}
@@ -173,7 +185,7 @@ export function SidePanel() {
           axis="y"
           values={draggableSections}
           onReorder={(newOrder) => {
-            reorderSections([
+            handleReorder([
               ...menuSections.filter((s) => s.id === "basic"),
               ...newOrder,
             ]);
@@ -186,7 +198,7 @@ export function SidePanel() {
                 key={item.id}
                 item={item}
                 isActive={activeSection === item.id}
-                onSelect={() => setActiveSection(item.id)}
+                onSelect={() => handleSelect(item.id)}
                 onToggle={(e) => { e.stopPropagation(); toggleSectionVisibility(item.id); }}
                 onDelete={item.id.startsWith("custom") ? (e) => {
                   e.stopPropagation();
