@@ -1,0 +1,128 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #ffffff;
+  --surface: #f8fafc;
+  --surface2: #f1f5f9;
+  --border: #e2e8f0;
+  --border2: #cbd5e1;
+  --text: #1e293b;
+  --muted: #64748b;
+  --dim: #94a3b8;
+  --accent: #2563eb;
+  --accent-dark: #1d4ed8;
+  --success: #16a34a;
+  --error-bg: #fef2f2;
+  --error-border: #fecaca;
+  --error-text: #dc2626;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+}
+
+textarea, input { font-family: inherit; outline: none; }
+textarea:focus { border-color: var(--border2) !important; }
+input:focus { border-color: var(--accent) !important; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border);
+  border-top: 2px solid var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* ── A4 page container ───────────────────────────────── */
+.a4-page-container {
+  width: 794px;          /* A4 width at 96 DPI */
+  min-height: 1123px;    /* A4 height at 96 DPI */
+  margin: 0 auto;
+  background: white;
+}
+
+.a4-page-container > div {
+  min-height: 1123px;
+}
+
+/* ── Print styles ────────────────────────────────────── */
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  body {
+    background: white !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .a4-page-container {
+    width: 100%;
+    margin: 0;
+    box-shadow: none !important;
+    min-height: auto;
+  }
+
+  .a4-page-container > div {
+    box-shadow: none !important;
+    min-height: auto;
+  }
+
+  /*
+   * Smart page breaks:
+   * 1. Sections CAN break across pages to avoid huge white spaces
+   * 2. Individual entries stay together
+   * 3. Headings aren't orphaned at the bottom
+   * 4. List items stay together
+   */
+
+  .a4-page-container section {
+    page-break-inside: auto;
+    break-inside: auto;
+  }
+
+  /* Keep individual entries together */
+  .a4-page-container [style*="marginBottom"],
+  .a4-page-container section > div > div {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Keep list items together */
+  .a4-page-container li {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Don't orphan section headings at page bottom */
+  .a4-page-container h1,
+  .a4-page-container h2,
+  .a4-page-container h3,
+  .a4-page-container h4 {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  /* Don't break inside the header block */
+  .a4-page-container header {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Hide non-print elements */
+  .no-print {
+    display: none !important;
+  }
+}
