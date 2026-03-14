@@ -65,24 +65,6 @@ function BasicInfoSection({
 
   return (
     <header className={`mb-16 ${alignClass}`}>
-      {/* Photo */}
-      {basic.photo && basic.photoConfig?.visible && (
-        <div
-          className={`overflow-hidden mb-4 ${layout === "center" ? "mx-auto" : layout === "right" ? "ml-auto" : ""}`}
-          style={{
-            width: `${basic.photoConfig.width || 80}px`,
-            height: `${basic.photoConfig.height || 80}px`,
-            borderRadius:
-              basic.photoConfig.borderRadius === "full"
-                ? "9999px"
-                : basic.photoConfig.borderRadius === "medium"
-                ? "8px"
-                : "0",
-          }}
-        >
-          <img src={basic.photo} alt={basic.name} className="w-full h-full object-cover" />
-        </div>
-      )}
       <h1 className="text-5xl font-extralight tracking-tighter leading-none mb-3" style={{ color: themeColor }}>
         {basic.name?.split(" ").map((part, i) => (
           <span key={i} className={i >= 1 ? "font-black" : ""}>{part} </span>

@@ -126,3 +126,42 @@ input:focus { border-color: var(--accent) !important; }
     display: none !important;
   }
 }
+
+/* ── Page Break Indicators (Preview Only) ──────────────── */
+.page-break-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  z-index: 50;
+}
+
+.page-break-line::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  border-top: 1px dashed #ef4444;
+  opacity: 0.5;
+}
+
+.page-break-badge {
+  position: absolute;
+  right: 0;
+  top: -20px;
+  background: #ef4444;
+  color: white;
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+  pointer-events: auto;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+@media print {
+  .page-break-line {
+    display: none !important;
+  }
+}

@@ -14,36 +14,9 @@ function generateId() {
 
 export function BasicInfoEditor() {
   const { activeResume, updateBasicInfo } = useResumeStore();
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!activeResume) return null;
   const { basic } = activeResume;
-
-  // Photo upload handler — converts to base64 data URL
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const dataUrl = ev.target?.result as string;
-      updateBasicInfo({
-        photo: dataUrl,
-        photoConfig: {
-          width: 80,
-          height: 80,
-          aspectRatio: "1:1",
-          borderRadius: "medium",
-          customBorderRadius: 8,
-          visible: true,
-        },
-      });
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const removePhoto = () => {
-    updateBasicInfo({ photo: "" });
-  };
 
   // Custom fields
   const customFields: CustomFieldType[] = basic.customFields || [];
@@ -80,46 +53,6 @@ export function BasicInfoEditor() {
           value={basic.layout || "center"}
           onChange={(v) => updateBasicInfo({ layout: v })}
         />
-      </div>
-
-      {/* Photo upload */}
-      <div className="flex items-center gap-4 p-3 bg-gray-50 rounded-xl border border-gray-100">
-        <div className="relative">
-          {basic.photo ? (
-            <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-gray-200">
-              <img src={basic.photo} alt="Profile" className="w-full h-full object-cover" />
-              <button
-                onClick={removePhoto}
-                className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center"
-              >
-                <X className="w-3 h-3" />
-              </button>
-            </div>
-          ) : (
-            <div className="w-16 h-16 rounded-xl bg-gray-200 flex items-center justify-center">
-              <User className="w-6 h-6 text-gray-400" />
-            </div>
-          )}
-        </div>
-        <div>
-          <p className="text-xs font-semibold text-gray-700 mb-1">Profile Photo</p>
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-8 text-xs rounded-lg"
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <Upload className="w-3 h-3 mr-1.5" />
-            {basic.photo ? "Change Photo" : "Upload Photo"}
-          </Button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={handlePhotoUpload}
-          />
-        </div>
       </div>
 
       {/* Core fields */}

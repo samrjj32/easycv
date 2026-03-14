@@ -55,28 +55,9 @@ function BasicInfoSection({
 
   return (
     <div
-      className={`pb-6 mb-2 border-b-2 ${layout === "left" ? "flex gap-6 items-center" : ""}`}
+      className={`pb-6 mb-2 border-b-2`}
       style={{ borderColor: themeColor }}
     >
-      {/* Photo */}
-      {basic.photo && basic.photoConfig?.visible && (
-        <div
-          className={`shrink-0 overflow-hidden ${layout !== "left" ? "mx-auto mb-3" : ""}`}
-          style={{
-            width: `${basic.photoConfig.width || 80}px`,
-            height: `${basic.photoConfig.height || 80}px`,
-            borderRadius:
-              basic.photoConfig.borderRadius === "full"
-                ? "9999px"
-                : basic.photoConfig.borderRadius === "medium"
-                ? "8px"
-                : "0",
-          }}
-        >
-          <img src={basic.photo} alt={basic.name} className="w-full h-full object-cover" />
-        </div>
-      )}
-
       <div className={`flex-1 min-w-0 ${alignClass}`}>
         {basic.name && (
           <h1

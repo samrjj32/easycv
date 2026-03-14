@@ -65,25 +65,6 @@ function BasicInfoSection({
       style={{ backgroundColor: themeColor, color: "#ffffff" }}
     >
       <div className={`${layout === "left" ? "flex gap-6 items-center" : ""}`}>
-        {/* Photo */}
-        {basic.photo && basic.photoConfig?.visible && (
-          <div
-            className={`shrink-0 overflow-hidden ${layout !== "left" ? "mx-auto mb-3" : ""}`}
-            style={{
-              width: `${basic.photoConfig.width || 90}px`,
-              height: `${basic.photoConfig.height || 90}px`,
-              borderRadius:
-                basic.photoConfig.borderRadius === "full"
-                  ? "9999px"
-                  : basic.photoConfig.borderRadius === "medium"
-                  ? "8px"
-                  : "0",
-              border: "3px solid rgba(255,255,255,0.3)",
-            }}
-          >
-            <img src={basic.photo} alt={basic.name} className="w-full h-full object-cover" />
-          </div>
-        )}
         <div className={`flex-1 min-w-0 ${alignClass}`}>
           <h1 className="font-bold leading-tight" style={{ fontSize: "28px" }}>
             {basic.name || "YOUR NAME"}

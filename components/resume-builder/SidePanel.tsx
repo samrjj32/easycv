@@ -3,7 +3,7 @@
 import React from "react";
 import { useResumeStore } from "@/lib/store/useResumeStore";
 import { AnimatePresence, motion, Reorder, useDragControls } from "framer-motion";
-import { Eye, EyeOff, GripVertical, Trash2, Plus, Palette, Type, Space } from "lucide-react";
+import { Eye, EyeOff, GripVertical, Trash2, Plus, Palette, Type, Space, ChevronDown, LayoutTemplate, MoveHorizontal, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MenuSection } from "@/lib/types/resume";
 
@@ -12,6 +12,50 @@ const THEME_COLORS = [
   "#666666", "#808080", "#999999", "#0047AB",
   "#8B0000", "#FF4500", "#4B0082", "#2E8B57",
 ];
+
+function CollapsibleSection({ 
+  title, 
+  icon, 
+  children, 
+  defaultOpen = true 
+}: { 
+  title: string, 
+  icon: React.ReactNode, 
+  children: React.ReactNode, 
+  defaultOpen?: boolean 
+}) {
+  const [isOpen, setIsOpen] = React.useState(defaultOpen);
+
+  return (
+    <div className="border border-gray-100 rounded-2xl bg-white overflow-hidden mb-4 shadow-sm">
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full flex items-center justify-between p-4 bg-white hover:bg-gray-50/50 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          {icon}
+          <span className="text-sm font-bold text-gray-900">{title}</span>
+        </div>
+        <ChevronDown className={cn("w-4 h-4 text-gray-400 transition-transform duration-200", isOpen && "rotate-180")} />
+      </button>
+      <AnimatePresence initial={false}>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className="p-4 pt-0">
+              {children}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 // ------ Single draggable module row ------
 function ModuleItem({
@@ -36,24 +80,27 @@ function ModuleItem({
       <div
         onClick={onSelect}
         className={cn(
-          "flex items-center gap-2 px-3 py-2.5 rounded-lg border cursor-pointer transition-all select-none",
+          "flex items-center gap-2 px-3 py-3 rounded-xl border cursor-pointer transition-all select-none",
           isActive
-            ? "bg-black border-black text-white"
-            : "bg-white border-gray-100 hover:border-gray-300 text-gray-700"
+            ? "bg-black border-black text-white shadow-md"
+            : "bg-white border-gray-200 hover:border-gray-300 text-gray-700 shadow-sm"
         )}
       >
+        <div className="w-5 flex items-center justify-center shrink-0">
+          <GripVertical className="w-4 h-4 text-transparent" /> {/* Invisible placeholder for alignment */}
+        </div>
         <span className="text-base w-5 text-center shrink-0">{item.icon}</span>
-        <span className="text-xs font-medium flex-1 truncate">{item.title}</span>
+        <span className="text-sm font-semibold flex-1 truncate">{item.title}</span>
         <button
           onClick={onToggle}
           className={cn(
-            "p-1 rounded transition-colors shrink-0",
+            "p-1.5 rounded-lg transition-colors shrink-0",
             isActive ? "hover:bg-white/10" : "hover:bg-gray-100"
           )}
         >
           {item.enabled !== false
-            ? <Eye className={cn("w-3.5 h-3.5", isActive ? "text-white/70" : "text-blue-500")} />
-            : <EyeOff className={cn("w-3.5 h-3.5", isActive ? "text-white/50" : "text-gray-400")} />}
+            ? <Eye className={cn("w-4 h-4", isActive ? "text-white/70" : "text-blue-500")} />
+            : <EyeOff className={cn("w-4 h-4", isActive ? "text-white/50" : "text-gray-400")} />}
         </button>
       </div>
     );
@@ -65,47 +112,44 @@ function ModuleItem({
       dragListener={false}
       dragControls={controls}
       className={cn(
-        "flex items-center rounded-lg border cursor-pointer transition-all select-none overflow-hidden group",
+        "flex items-center rounded-xl border cursor-pointer transition-all select-none overflow-hidden group",
         isActive
-          ? "bg-black border-black text-white"
-          : "bg-white border-gray-100 hover:border-gray-300 text-gray-700"
+          ? "bg-black border-black text-white shadow-md relative z-10"
+          : "bg-white border-gray-200 hover:border-gray-300 text-gray-700 shadow-sm"
       )}
     >
       <div
         onPointerDown={(e) => controls.start(e)}
-        className={cn(
-          "w-7 flex items-center justify-center py-2.5 shrink-0 touch-none cursor-grab",
-          isActive ? "hover:bg-white/10" : "hover:bg-gray-100"
-        )}
+        className="w-8 flex items-center justify-center py-3 shrink-0 touch-none cursor-grab"
       >
-        <GripVertical className={cn("w-3.5 h-3.5", isActive ? "text-white/50" : "text-gray-300 group-hover:text-gray-500")} />
+        <GripVertical className={cn("w-4 h-4", isActive ? "text-white/50" : "text-gray-300 group-hover:text-gray-500")} />
       </div>
       <div
-        className="flex items-center gap-2 flex-1 px-1.5 py-2.5 min-w-0"
+        className="flex items-center gap-2 flex-1 pr-3 py-3 min-w-0"
         onClick={onSelect}
       >
         <span className="text-base w-5 text-center shrink-0">{item.icon}</span>
-        <span className="text-xs font-medium flex-1 truncate">{item.title}</span>
+        <span className="text-sm font-semibold flex-1 truncate">{item.title}</span>
         <button
           onClick={onToggle}
           className={cn(
-            "p-1 rounded transition-colors shrink-0",
+            "p-1.5 rounded-lg transition-colors shrink-0",
             isActive ? "hover:bg-white/10" : "hover:bg-gray-100"
           )}
         >
           {item.enabled !== false
-            ? <Eye className={cn("w-3.5 h-3.5", isActive ? "text-white/70" : "text-blue-500")} />
-            : <EyeOff className={cn("w-3.5 h-3.5", isActive ? "text-white/50" : "text-gray-400")} />}
+            ? <Eye className={cn("w-4 h-4", isActive ? "text-white/70" : "text-blue-500")} />
+            : <EyeOff className={cn("w-4 h-4", isActive ? "text-white/50" : "text-gray-400")} />}
         </button>
         {onDelete && (
           <button
             onClick={onDelete}
             className={cn(
-              "p-1 rounded transition-colors shrink-0",
-              isActive ? "hover:bg-white/10" : "hover:bg-red-50"
+              "p-1.5 rounded-lg transition-colors shrink-0 hidden group-hover:flex",
+              isActive ? "hover:bg-white/10" : "hover:bg-red-50 text-red-400"
             )}
           >
-            <Trash2 className={cn("w-3 h-3", isActive ? "text-white/50" : "text-red-400")} />
+            <Trash2 className="w-4 h-4" />
           </button>
         )}
       </div>
@@ -113,7 +157,12 @@ function ModuleItem({
   );
 }
 
-export function SidePanel() {
+interface SidePanelProps {
+  isCollapsed?: boolean;
+  onExpand?: () => void;
+}
+
+export function SidePanel({ isCollapsed, onExpand }: SidePanelProps) {
   const {
     activeResumeId,
     activeResume,
@@ -126,6 +175,34 @@ export function SidePanel() {
   } = useResumeStore();
 
   if (!activeResume) return null;
+
+  if (isCollapsed) {
+    return (
+      <div className="h-full flex flex-col items-center py-6 space-y-4 bg-slate-50 overflow-y-auto scrollbar-hide border-r border-gray-200/50">
+        {/* Active Item */}
+        <button onClick={onExpand} className="w-12 h-12 flex items-center justify-center rounded-xl bg-blue-500 hover:bg-blue-600 transition-colors shadow-sm shrink-0 group">
+          <LayoutTemplate className="w-5 h-5 text-white" strokeWidth={2} />
+        </button>
+        
+        {/* Inactive Items */}
+        <button onClick={onExpand} className="w-12 h-12 flex items-center justify-center rounded-xl hover:bg-gray-200/60 transition-colors shrink-0 group">
+          <Palette className="w-6 h-6 text-gray-400 group-hover:text-gray-600 transition-colors" strokeWidth={1.5} />
+        </button>
+
+        <button onClick={onExpand} className="w-12 h-12 flex items-center justify-center rounded-xl hover:bg-gray-200/60 transition-colors shrink-0 group">
+          <Type className="w-6 h-6 text-gray-400 group-hover:text-gray-600 transition-colors" strokeWidth={1.5} />
+        </button>
+
+        <button onClick={onExpand} className="w-12 h-12 flex items-center justify-center rounded-xl hover:bg-gray-200/60 transition-colors shrink-0 group">
+          <MoveHorizontal className="w-6 h-6 text-gray-400 group-hover:text-gray-600 transition-colors" strokeWidth={1.5} />
+        </button>
+
+        <button onClick={onExpand} className="w-12 h-12 flex items-center justify-center rounded-xl hover:bg-gray-200/60 transition-colors shrink-0 group">
+          <Zap className="w-6 h-6 text-gray-400 group-hover:text-gray-600 transition-colors" strokeWidth={1.5} />
+        </button>
+      </div>
+    );
+  }
 
   const { menuSections = [], activeSection = "basic", globalSettings = {} } = activeResume;
   const {
@@ -166,105 +243,122 @@ export function SidePanel() {
   };
 
   return (
-    <div className="h-full flex flex-col overflow-y-auto scrollbar-hide">
-      {/* Module List */}
-      <div className="p-3 space-y-1.5">
-        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1 mb-2">Layout</p>
+    <div className="h-full flex flex-col overflow-y-auto scrollbar-hide p-4">
+      {/* ──── Layout ──── */}
+      <CollapsibleSection 
+        title="Layout" 
+        icon={<div className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center"><LayoutTemplate className="w-4 h-4 text-blue-600" /></div>}
+        defaultOpen={true}
+      >
+        <div className="space-y-2 pt-1">
+          {basicSection && (
+            <ModuleItem
+              item={basicSection}
+              isActive={activeSection === basicSection.id}
+              isBasic
+              onSelect={() => handleSelect(basicSection.id)}
+              onToggle={(e) => { e.stopPropagation(); toggleSectionVisibility(basicSection.id); }}
+            />
+          )}
 
-        {basicSection && (
-          <ModuleItem
-            item={basicSection}
-            isActive={activeSection === basicSection.id}
-            isBasic
-            onSelect={() => handleSelect(basicSection.id)}
-            onToggle={(e) => { e.stopPropagation(); toggleSectionVisibility(basicSection.id); }}
-          />
-        )}
+          <Reorder.Group
+            axis="y"
+            values={draggableSections}
+            onReorder={(newOrder) => {
+              handleReorder([
+                ...menuSections.filter((s) => s.id === "basic"),
+                ...newOrder,
+              ]);
+            }}
+            className="space-y-2"
+          >
+            <AnimatePresence>
+              {draggableSections.map((item) => (
+                <ModuleItem
+                  key={item.id}
+                  item={item}
+                  isActive={activeSection === item.id}
+                  onSelect={() => handleSelect(item.id)}
+                  onToggle={(e) => { e.stopPropagation(); toggleSectionVisibility(item.id); }}
+                  onDelete={item.id.startsWith("custom") ? (e) => {
+                    e.stopPropagation();
+                    updateResume(activeResume.id, {
+                      menuSections: menuSections.filter((s) => s.id !== item.id),
+                    });
+                  } : undefined}
+                />
+              ))}
+            </AnimatePresence>
+          </Reorder.Group>
 
-        <Reorder.Group
-          axis="y"
-          values={draggableSections}
-          onReorder={(newOrder) => {
-            handleReorder([
-              ...menuSections.filter((s) => s.id === "basic"),
-              ...newOrder,
-            ]);
-          }}
-          className="space-y-1.5"
-        >
-          <AnimatePresence>
-            {draggableSections.map((item) => (
-              <ModuleItem
-                key={item.id}
-                item={item}
-                isActive={activeSection === item.id}
-                onSelect={() => handleSelect(item.id)}
-                onToggle={(e) => { e.stopPropagation(); toggleSectionVisibility(item.id); }}
-                onDelete={item.id.startsWith("custom") ? (e) => {
-                  e.stopPropagation();
-                  updateResume(activeResume.id, {
-                    menuSections: menuSections.filter((s) => s.id !== item.id),
-                  });
-                } : undefined}
-              />
-            ))}
-          </AnimatePresence>
-        </Reorder.Group>
-
-        <button
-          onClick={addCustomSection}
-          className="w-full flex items-center justify-center gap-1.5 px-3 py-2 text-xs text-gray-400 border border-dashed border-gray-200 rounded-lg hover:border-gray-300 hover:text-gray-600 transition-colors mt-2"
-        >
-          <Plus className="w-3.5 h-3.5" />
-          Add Module
-        </button>
-      </div>
+          <button
+            onClick={addCustomSection}
+            className="w-full flex items-center justify-center gap-1.5 px-3 py-3 text-xs font-medium text-gray-500 border border-dashed border-gray-200 rounded-xl hover:border-gray-300 hover:text-gray-700 hover:bg-gray-50 transition-all mt-2"
+          >
+            <Plus className="w-4 h-4" />
+            Add Module
+          </button>
+        </div>
+      </CollapsibleSection>
 
       {/* ──── Theme Color ──── */}
-      <div className="px-3 pb-3 pt-1">
-        <div className="border border-gray-100 rounded-xl bg-white p-3 space-y-3">
-          <div className="flex items-center gap-2">
-            <Palette className="w-3.5 h-3.5 text-gray-400" />
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Theme Color</p>
-          </div>
-          <div className="grid grid-cols-6 gap-1.5">
+      <CollapsibleSection 
+        title="Theme Color" 
+        icon={<div className="w-7 h-7 rounded-lg bg-purple-50 flex items-center justify-center"><Palette className="w-4 h-4 text-purple-600" /></div>}
+        defaultOpen={true}
+      >
+        <div className="space-y-4 pt-1">
+          <div className="grid grid-cols-6 gap-2">
             {THEME_COLORS.map((c) => (
               <button
                 key={c}
                 onClick={() => setThemeColor(c)}
                 className={cn(
-                  "w-full aspect-square rounded-md border-2 transition-all hover:scale-110",
+                  "w-full aspect-square rounded-full border-2 transition-all hover:scale-110",
                   themeColor === c ? "border-gray-900 scale-110 shadow-sm" : "border-transparent"
                 )}
                 style={{ backgroundColor: c }}
-              />
+              >
+                {/* Optional inner circle for dark mode logic or just simple */}
+                {themeColor === c && (
+                   <div className="w-full h-full rounded-full border-2 border-white mix-blend-difference" />
+                )}
+              </button>
             ))}
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] text-gray-400">Custom</span>
-            <input
-              type="color"
-              value={themeColor}
-              onChange={(e) => setThemeColor(e.target.value)}
-              className="w-6 h-6 rounded cursor-pointer border-0 p-0 bg-transparent"
-            />
-            <span className="text-[10px] text-gray-500 font-mono">{themeColor}</span>
+          <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-50">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Custom</span>
+              <div className="relative w-6 h-6 rounded-md overflow-hidden shadow-sm border border-gray-200">
+                <input
+                  type="color"
+                  value={themeColor}
+                  onChange={(e) => setThemeColor(e.target.value)}
+                  className="absolute inset-[-10px] w-10 h-10 cursor-pointer border-0 p-0 bg-transparent"
+                />
+              </div>
+            </div>
+            <button 
+              onClick={() => setThemeColor("#000000")}
+              className="text-[10px] font-bold text-blue-600 uppercase tracking-widest hover:text-blue-700"
+            >
+              Reset
+            </button>
           </div>
         </div>
-      </div>
+      </CollapsibleSection>
 
       {/* ──── Typography ──── */}
-      <div className="px-3 pb-3">
-        <div className="border border-gray-100 rounded-xl bg-white p-3 space-y-3">
-          <div className="flex items-center gap-2">
-            <Type className="w-3.5 h-3.5 text-gray-400" />
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Typography</p>
-          </div>
-
+      <CollapsibleSection 
+        title="Typography" 
+        icon={<div className="w-7 h-7 rounded-lg bg-emerald-50 flex items-center justify-center"><Type className="w-4 h-4 text-emerald-600" /></div>}
+        defaultOpen={false}
+      >
+        <div className="space-y-4 pt-1">
           {/* Base Font Size */}
-          <div className="space-y-1">
+          <div className="space-y-2">
             <div className="flex justify-between">
-              <span className="text-[10px] text-gray-400 uppercase tracking-wide">Font Size</span>
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Font Size</span>
               <span className="text-[10px] text-gray-500 font-mono">{baseFontSize}px</span>
             </div>
             <input
@@ -276,9 +370,9 @@ export function SidePanel() {
           </div>
 
           {/* Line Height */}
-          <div className="space-y-1">
+          <div className="space-y-2">
             <div className="flex justify-between">
-              <span className="text-[10px] text-gray-400 uppercase tracking-wide">Line Height</span>
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Line Height</span>
               <span className="text-[10px] text-gray-500 font-mono">{lineHeight}</span>
             </div>
             <input
@@ -290,15 +384,15 @@ export function SidePanel() {
           </div>
 
           {/* Header Size */}
-          <div className="space-y-1">
+          <div className="space-y-2">
             <div className="flex justify-between">
-              <span className="text-[10px] text-gray-400 uppercase tracking-wide">Header Size</span>
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Header Size</span>
               <span className="text-[10px] text-gray-500 font-mono">{headerSize}px</span>
             </div>
             <select
               value={headerSize}
               onChange={(e) => updateGlobalSettings({ headerSize: parseInt(e.target.value) })}
-              className="w-full text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-white text-gray-700 outline-none focus:border-gray-400 transition-colors"
+              className="w-full text-xs font-medium border border-gray-200 rounded-lg px-2 py-2 bg-white text-gray-700 outline-none focus:border-gray-400 focus:ring-1 focus:ring-gray-200 transition-all"
             >
               {[12, 13, 14, 15, 16, 18, 20, 24].map((s) => (
                 <option key={s} value={s}>{s}px</option>
@@ -307,15 +401,15 @@ export function SidePanel() {
           </div>
 
           {/* Subheader Size */}
-          <div className="space-y-1">
+          <div className="space-y-2">
             <div className="flex justify-between">
-              <span className="text-[10px] text-gray-400 uppercase tracking-wide">Subheader Size</span>
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Subheader Size</span>
               <span className="text-[10px] text-gray-500 font-mono">{subheaderSize}px</span>
             </div>
             <select
               value={subheaderSize}
               onChange={(e) => updateGlobalSettings({ subheaderSize: parseInt(e.target.value) })}
-              className="w-full text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-white text-gray-700 outline-none focus:border-gray-400 transition-colors"
+              className="w-full text-xs font-medium border border-gray-200 rounded-lg px-2 py-2 bg-white text-gray-700 outline-none focus:border-gray-400 focus:ring-1 focus:ring-gray-200 transition-all"
             >
               {[12, 13, 14, 15, 16, 18, 20, 24].map((s) => (
                 <option key={s} value={s}>{s}px</option>
@@ -323,20 +417,19 @@ export function SidePanel() {
             </select>
           </div>
         </div>
-      </div>
+      </CollapsibleSection>
 
       {/* ──── Spacing ──── */}
-      <div className="px-3 pb-4">
-        <div className="border border-gray-100 rounded-xl bg-white p-3 space-y-3">
-          <div className="flex items-center gap-2">
-            <Space className="w-3.5 h-3.5 text-gray-400" />
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Spacing</p>
-          </div>
-
+      <CollapsibleSection 
+        title="Spacing" 
+        icon={<div className="w-7 h-7 rounded-lg bg-orange-50 flex items-center justify-center"><Space className="w-4 h-4 text-orange-600" /></div>}
+        defaultOpen={false}
+      >
+        <div className="space-y-4 pt-1">
           {/* Page Padding */}
-          <div className="space-y-1">
+          <div className="space-y-2">
             <div className="flex justify-between">
-              <span className="text-[10px] text-gray-400 uppercase tracking-wide">Page Padding</span>
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Page Padding</span>
               <span className="text-[10px] text-gray-500 font-mono">{pagePadding}px</span>
             </div>
             <input
@@ -348,9 +441,9 @@ export function SidePanel() {
           </div>
 
           {/* Section Spacing */}
-          <div className="space-y-1">
+          <div className="space-y-2">
             <div className="flex justify-between">
-              <span className="text-[10px] text-gray-400 uppercase tracking-wide">Section Spacing</span>
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Section Spacing</span>
               <span className="text-[10px] text-gray-500 font-mono">{sectionSpacing}px</span>
             </div>
             <input
@@ -362,9 +455,9 @@ export function SidePanel() {
           </div>
 
           {/* Paragraph Spacing */}
-          <div className="space-y-1">
+          <div className="space-y-2">
             <div className="flex justify-between">
-              <span className="text-[10px] text-gray-400 uppercase tracking-wide">Paragraph Spacing</span>
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Paragraph Spacing</span>
               <span className="text-[10px] text-gray-500 font-mono">{paragraphSpacing}px</span>
             </div>
             <input
@@ -375,7 +468,7 @@ export function SidePanel() {
             />
           </div>
         </div>
-      </div>
+      </CollapsibleSection>
     </div>
   );
 }

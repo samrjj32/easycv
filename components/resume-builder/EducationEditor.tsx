@@ -81,6 +81,13 @@ function EducationItem({ edu }: { edu: Education }) {
               {edu.gpa && (
                 <Field label="GPA" value={edu.gpa?.toString() || ""} onChange={(v) => updateEducation(edu.id, { gpa: v })} placeholder="e.g. 3.8/4.0" />
               )}
+              <Field 
+                label="Description (Modules, Dissertation, etc.)" 
+                value={edu.description || ""} 
+                onChange={(v) => updateEducation(edu.id, { description: v })} 
+                type="editor" 
+                placeholder="List modules, dissertation details, or achievements..." 
+              />
             </div>
           </motion.div>
         )}
