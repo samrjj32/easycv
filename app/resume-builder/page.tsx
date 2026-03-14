@@ -2,18 +2,18 @@
 
 import { useResumeStore } from "@/lib/store/useResumeStore";
 import { TemplateRenderer } from "@/components/resume-builder/templates/TemplateRenderer";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { useReactToPrint } from "react-to-print";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, Suspense, useRef, useState } from "react";
 import Link from "next/link";
-import { FileText, ChevronLeft, ChevronRight, Pencil, Undo, Redo, LayoutTemplate, Download, Sparkles, PanelLeftClose, PanelLeftOpen, RotateCcw, Plus, Minus } from "lucide-react";
-import QuickPinchZoom, { make3dTransformValue } from 'react-quick-pinch-zoom';
+import { FileText, ChevronLeft, ChevronRight, Pencil, Undo, Redo, Download, Sparkles, RotateCcw } from "lucide-react";
+import QuickPinchZoom, { make3dTransformValue } from "react-quick-pinch-zoom";
 import { SidePanel } from "@/components/resume-builder/SidePanel";
 import { EditPanel } from "@/components/resume-builder/EditPanel";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 function ResumeBuilderInner() {
   const { activeResume, setActiveResume, createResume, updateResume, mobileEditorView } = useResumeStore();
@@ -24,12 +24,9 @@ function ResumeBuilderInner() {
   const [mobileTab, setMobileTab] = useState<"edit" | "preview">("edit");
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(true);
 
-  // Function to handle zoom/pan updates
   const onUpdate = ({ x, y, scale }: { x: number; y: number; scale: number }) => {
-    const el = document.getElementById('zoom-target');
-    if (el) {
-      el.style.transform = make3dTransformValue({ x, y, scale });
-    }
+    const el = document.getElementById("zoom-target");
+    if (el) el.style.transform = make3dTransformValue({ x, y, scale });
   };
 
   const handlePrint = useReactToPrint({
@@ -40,7 +37,6 @@ function ResumeBuilderInner() {
   useEffect(() => {
     const id = searchParams.get("id");
     const template = searchParams.get("template");
-
     if (id) {
       setActiveResume(id);
     } else {
@@ -51,173 +47,280 @@ function ResumeBuilderInner() {
 
   if (!activeResume) {
     return (
-      <div className="h-screen w-full flex items-center justify-center bg-white">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
-          <p className="text-gray-500 font-medium text-sm">Loading your workspace...</p>
+      <div style={{
+        height: "100svh", width: "100%",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        background: "var(--bg)",
+      }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+          <div style={{
+            width: 32, height: 32,
+            border: "2px solid var(--border)",
+            borderTopColor: "var(--accent)",
+            borderRadius: "50%",
+            animation: "spin 0.7s linear infinite",
+          }} />
+          <p style={{ fontSize: 13, color: "var(--text-muted)" }}>Loading workspace…</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="h-screen w-full flex flex-col bg-white overflow-hidden">
-      {/* Top bar logic... skipped for brevity as it is identical */}
-      <header className="h-14 border-b border-gray-200 bg-white flex items-center justify-between px-4 sm:px-6 z-20 shrink-0">
-        <div className="flex items-center h-full gap-3 sm:gap-4">
-          <Link href="/" className="flex items-center gap-1.5 sm:gap-2 sm:mr-1">
-            <div className="w-[22px] h-[22px] sm:w-6 sm:h-6 bg-blue-600 rounded flex items-center justify-center">
-              <FileText className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-white" />
+    <div style={{
+      height: "100svh", width: "100%",
+      display: "flex", flexDirection: "column",
+      background: "var(--bg)",
+      overflow: "hidden",
+    }}>
+      {/* Top bar */}
+      <header style={{
+        height: 52, flexShrink: 0,
+        borderBottom: "1px solid var(--border)",
+        background: "var(--surface)",
+        display: "flex", alignItems: "center",
+        justifyContent: "space-between",
+        padding: "0 16px",
+        gap: 12,
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <Link href="/" style={{
+            display: "flex", alignItems: "center", gap: 6,
+            textDecoration: "none",
+          }}>
+            <div style={{
+              width: 22, height: 22,
+              background: "var(--accent)", borderRadius: 4,
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
+              <FileText size={11} color="white" />
             </div>
-            <span className="font-bold text-gray-900 text-[15px] tracking-tight hidden sm:block italic">AutoApply</span>
+            <span className="hidden sm:block" style={{
+              fontSize: 13, fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 400,
+              color: "var(--text)",
+              letterSpacing: "-0.02em",
+            }}>
+              easycv
+            </span>
           </Link>
-          <Separator orientation="vertical" className="h-5 bg-gray-200 hidden sm:block" />
+
+          <div className="hidden sm:block" style={{ width: 1, height: 18, background: "var(--border)" }} />
+
           <Input
             value={activeResume.title}
             onChange={(e) => updateResume(activeResume.id, { title: e.target.value })}
-            className="hidden sm:flex font-medium text-[15px] text-gray-500 italic bg-transparent border-0 shadow-none focus-visible:ring-1 focus-visible:ring-gray-300 px-2 h-8 hover:bg-gray-50 rounded-md transition-colors w-[220px]"
+            className="w-24 sm:w-48"
+            style={{
+              fontSize: 13, fontWeight: 500,
+              color: "var(--text-2)",
+              background: "transparent",
+              border: "1px solid transparent",
+              height: 30,
+              borderRadius: 6,
+              padding: "0 8px",
+            }}
             placeholder="Resume Title"
+            onFocus={e => (e.target.style.borderColor = "var(--border)")}
+            onBlur={e => (e.target.style.borderColor = "transparent")}
           />
         </div>
-        <div className="flex items-center h-full gap-2 text-gray-400">
-          <div className="flex items-center gap-0.5">
-            <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full hover:bg-gray-100 text-gray-400" disabled title="Undo"><Undo className="w-4 h-4" /></Button>
-            <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full hover:bg-gray-100 text-gray-400" disabled title="Redo"><Redo className="w-4 h-4" /></Button>
-          </div>
-          <Separator orientation="vertical" className="h-5 bg-gray-200 mx-2" />
-          <Button size="sm" onClick={() => handlePrint()} className="gap-2 bg-blue-600 hover:bg-blue-700 h-9 px-4 rounded-lg shadow-sm transition-all active:scale-95">
-            <Download className="w-4 h-4" />
-            <span className="hidden sm:inline">Download</span>
-          </Button>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <button className="hidden sm:flex" style={tbBtn} disabled title="Undo"><Undo size={14} /></button>
+          <button className="hidden sm:flex" style={tbBtn} disabled title="Redo"><Redo size={14} /></button>
+          <div className="hidden sm:block" style={{ width: 1, height: 18, background: "var(--border)", margin: "0 2px" }} />
+          <ThemeToggle />
+          <button
+            onClick={() => handlePrint()}
+            style={{
+              display: "flex", alignItems: "center", gap: 6,
+              padding: "6px 12px",
+              borderRadius: 6,
+              border: "none",
+              background: "var(--accent)",
+              color: "white",
+              fontSize: 12, fontWeight: 500,
+              cursor: "pointer",
+              fontFamily: "var(--font-body)",
+              whiteSpace: "nowrap",
+            }}
+          >
+            <Download size={13} />
+            <span className="hidden sm:inline">Export PDF</span>
+          </button>
         </div>
       </header>
 
-      <main className="flex-1 flex flex-row overflow-hidden min-h-0 relative">
-        {/* Column 1: Sidebar */}
-        <div className={cn(
-          "shrink-0 bg-white transition-all duration-300 ease-in-out relative z-10",
-          leftSidebarOpen ? "w-full lg:w-[260px] border-r border-gray-200" : "w-0 lg:w-[80px] border-transparent lg:border-r lg:border-gray-200",
-          (mobileTab === "edit" && mobileEditorView === "menu") ? "block" : "hidden lg:block"
-        )}>
+      <main style={{ flex: 1, display: "flex", overflow: "hidden", minHeight: 0 }}>
+        {/* Left sidebar */}
+        <div
+          className={cn(
+            "shrink-0 transition-all duration-300 ease-in-out relative",
+            leftSidebarOpen
+              ? "w-full lg:w-[256px] border-r"
+              : "w-0 lg:w-[72px] border-transparent lg:border-r",
+            mobileTab === "edit" && mobileEditorView === "menu" ? "block" : "hidden lg:block"
+          )}
+          style={{ borderColor: "var(--border)", background: "var(--surface)", overflow: "hidden" }}
+        >
           <button
             onClick={() => setLeftSidebarOpen(!leftSidebarOpen)}
-            className="absolute top-6 -right-3.5 w-7 h-7 bg-white border border-gray-200 rounded-full hidden lg:flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-50 shadow-sm z-20"
+            style={{
+              position: "absolute", top: 20, right: -12,
+              width: 24, height: 24,
+              background: "var(--surface)",
+              border: "1px solid var(--border)",
+              borderRadius: "50%",
+              display: "none",
+              alignItems: "center", justifyContent: "center",
+              color: "var(--text-2)",
+              cursor: "pointer",
+              zIndex: 10,
+            }}
+            className="hidden lg:flex"
           >
-            {leftSidebarOpen ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+            {leftSidebarOpen ? <ChevronLeft size={12} /> : <ChevronRight size={12} />}
           </button>
-          <div className={cn("h-full overflow-y-auto overflow-x-hidden transition-all duration-300", leftSidebarOpen ? "w-full lg:w-[260px]" : "w-full lg:w-[80px]")}>
+          <div className={cn(
+            "h-full overflow-y-auto overflow-x-hidden transition-all duration-300",
+            leftSidebarOpen ? "w-full lg:w-[256px]" : "w-full lg:w-[72px]"
+          )}>
             <SidePanel isCollapsed={!leftSidebarOpen} onExpand={() => setLeftSidebarOpen(true)} />
           </div>
         </div>
 
-        {/* Column 2: Preview - With Pinch Zoom & Panning for Mobile */}
-        <div className={cn(
-          "flex-1 flex flex-col items-center relative bg-gray-100/50 overflow-hidden",
-          mobileTab === "preview" ? "flex" : "hidden lg:flex"
-        )}>
-          {/* Zoom Actions - Mobile/Tablet only */}
-          <div className="absolute top-4 right-4 z-30 flex flex-col gap-2 lg:hidden">
-            <Button
-              variant="outline"
-              size="icon"
+        {/* Preview area */}
+        <div
+          className={cn(
+            "flex-1 flex flex-col items-center relative overflow-hidden",
+            mobileTab === "preview" ? "flex" : "hidden lg:flex"
+          )}
+          style={{ background: "var(--bg-subtle)" }}
+        >
+          {/* Mobile reset view */}
+          <div className="absolute top-3 right-3 z-30 flex flex-col gap-2 lg:hidden">
+            <button
               onClick={() => pinchZoomRef.current?.alignCenter()}
-              className="w-10 h-10 rounded-full bg-white shadow-lg border-gray-200 text-gray-600"
-              title="Reset View"
+              style={{
+                width: 36, height: 36,
+                borderRadius: "50%",
+                background: "var(--surface)",
+                border: "1px solid var(--border)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                color: "var(--text-2)", cursor: "pointer",
+              }}
             >
-              <RotateCcw className="w-4 h-4" />
-            </Button>
+              <RotateCcw size={14} />
+            </button>
           </div>
 
-          <div className="w-full h-full lg:p-6 p-0 overflow-y-auto overflow-x-hidden lg:flex lg:flex-col lg:items-center">
-            {/* Mobile/Tablet: Pinch-to-zoom container */}
+          <div style={{ width: "100%", height: "100%", overflowY: "auto", overflowX: "hidden" }}>
+            {/* Mobile pinch zoom */}
             <div className="w-full h-full block lg:hidden">
               <QuickPinchZoom
                 ref={pinchZoomRef}
                 onUpdate={onUpdate}
-                // @ts-ignore
-                minZoom={0.5}
-                // @ts-ignore
-                maxZoom={3}
-                containerProps={{
-                  style: { width: '100%', height: '100%', background: '#f3f4f6' }
-                }}
+                containerProps={{ style: { width: "100%", height: "100%", background: "var(--bg-subtle)" } }}
               >
                 <div id="zoom-target" className="origin-top-left p-4">
-                  <div 
-                    className="shadow-2xl bg-white mx-auto"
-                    style={{ 
-                      width: "794px", // Fixed A4 width
-                    }}
-                  >
+                  <div className="shadow-2xl bg-white mx-auto" style={{ width: 794 }}>
                     <TemplateRenderer resumeRef={resumeRef} />
                   </div>
                 </div>
               </QuickPinchZoom>
             </div>
 
-            {/* Desktop: Static preview with auto-scaling */}
-            <div className="hidden lg:flex flex-col items-center w-full">
-              <div 
-                className="origin-top shadow-xl transition-transform" 
-                style={{ 
-                  transform: "scale(clamp(0.4, calc((100vw - 380px - 260px - 64px) / 794), 1))",
+            {/* Desktop static */}
+            <div className="hidden lg:flex flex-col items-center w-full" style={{ padding: 24 }}>
+              <div
+                className="origin-top shadow-xl transition-transform bg-white"
+                style={{
+                  transform: "scale(clamp(0.4, calc((100vw - 380px - 256px - 64px) / 794), 1))",
                   transformOrigin: "top center",
-                  width: "794px",
+                  width: 794,
                 }}
               >
-                <div className="bg-white">
-                  <TemplateRenderer resumeRef={resumeRef} />
-                </div>
+                <TemplateRenderer resumeRef={resumeRef} />
               </div>
             </div>
           </div>
         </div>
 
-        {/* Column 3: Editor panel */}
-        <div className={cn(
-          "shrink-0 bg-white overflow-y-auto overflow-x-hidden transition-all duration-300 ease-in-out",
-          activeResume.activeSection ? "w-full lg:w-[380px] border-l border-gray-200" : "w-0 border-transparent",
-          (mobileTab === "edit" && mobileEditorView === "form") ? "block" : "hidden lg:block"
-        )}>
-          <div className="w-full lg:w-[380px] h-full">
+        {/* Right edit panel */}
+        <div
+          className={cn(
+            "shrink-0 overflow-y-auto overflow-x-hidden transition-all duration-300",
+            activeResume.activeSection ? "w-full lg:w-[360px] border-l" : "w-0 border-transparent",
+            mobileTab === "edit" && mobileEditorView === "form" ? "block" : "hidden lg:block"
+          )}
+          style={{ borderColor: "var(--border)", background: "var(--surface)" }}
+        >
+          <div style={{ width: "100%", height: "100%" }}>
             <EditPanel />
           </div>
         </div>
       </main>
 
-      {/* Mobile Bottom Navigation */}
-      <div className="lg:hidden shrink-0 border-t border-gray-200 bg-white flex items-center justify-around p-2 pb-safe shadow-[0_-4px_10px_rgba(0,0,0,0.05)] z-20">
-        <button
-          onClick={() => setMobileTab("edit")}
-          className={cn(
-            "flex flex-col items-center gap-1 p-2 rounded-lg text-xs font-medium min-w-[80px]",
-            mobileTab === "edit" ? "text-blue-600 bg-blue-50" : "text-gray-500 hover:text-gray-900"
-          )}
-        >
-          <Pencil className="w-5 h-5" />
-          Edit
-        </button>
-        <button
-          onClick={() => setMobileTab("preview")}
-          className={cn(
-            "flex flex-col items-center gap-1 p-2 rounded-lg text-xs font-medium min-w-[80px]",
-            mobileTab === "preview" ? "text-blue-600 bg-blue-50" : "text-gray-500 hover:text-gray-900"
-          )}
-        >
-          <Sparkles className="w-5 h-5" />
-          Preview
-        </button>
+      {/* Mobile bottom nav */}
+      <div
+        className="lg:hidden shrink-0 border-t flex items-center justify-around"
+        style={{
+          borderColor: "var(--border)",
+          background: "var(--surface)",
+          padding: "8px 0",
+        }}
+      >
+        {[
+          { key: "edit", label: "Edit", Icon: Pencil },
+          { key: "preview", label: "Preview", Icon: Sparkles },
+        ].map(({ key, label, Icon }) => (
+          <button
+            key={key}
+            onClick={() => setMobileTab(key as "edit" | "preview")}
+            style={{
+              display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
+              padding: "6px 20px", borderRadius: 8, border: "none",
+              background: mobileTab === key ? "var(--accent-light)" : "transparent",
+              color: mobileTab === key ? "var(--accent)" : "var(--text-muted)",
+              fontSize: 11, fontWeight: 500, cursor: "pointer",
+              fontFamily: "var(--font-body)",
+            }}
+          >
+            <Icon size={18} />
+            {label}
+          </button>
+        ))}
       </div>
-
     </div>
   );
 }
 
+const tbBtn: React.CSSProperties = {
+  width: 30, height: 30,
+  display: "flex", alignItems: "center", justifyContent: "center",
+  borderRadius: 6,
+  border: "1px solid var(--border)",
+  background: "transparent",
+  color: "var(--text-muted)",
+  cursor: "not-allowed",
+  opacity: 0.5,
+};
+
 export default function ResumeBuilderPage() {
   return (
     <Suspense fallback={
-      <div className="h-screen w-full flex items-center justify-center bg-white">
-        <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+      <div style={{
+        height: "100svh", display: "flex",
+        alignItems: "center", justifyContent: "center",
+        background: "var(--bg)",
+      }}>
+        <div style={{
+          width: 32, height: 32,
+          border: "2px solid var(--border)",
+          borderTopColor: "var(--accent)",
+          borderRadius: "50%",
+          animation: "spin 0.7s linear infinite",
+        }} />
       </div>
     }>
       <ResumeBuilderInner />

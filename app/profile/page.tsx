@@ -8,9 +8,7 @@ export default function ProfilePage() {
   const [cv, setCv] = useState("");
   const [saved, setSaved] = useState(false);
 
-  useEffect(() => {
-    setCv(loadCv());
-  }, []);
+  useEffect(() => { setCv(loadCv()); }, []);
 
   function handleSave() {
     saveCv(cv);
@@ -21,40 +19,114 @@ export default function ProfilePage() {
   const wordCount = cv.trim() ? cv.trim().split(/\s+/).length : 0;
 
   return (
-    <div className="min-h-screen bg-white">
-      <Nav active="profile" />
-      <main className="max-w-[900px] mx-auto px-6 py-8">
-        <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 text-blue-700 text-sm mb-7 leading-relaxed">
-          💡 Paste your full CV here once. The app uses this as source material for every
-          application — it tailors a new version per JD without touching this master copy.
+    <div style={{ minHeight: "100svh", background: "var(--bg)" }}>
+      <Nav active="/profile" />
+
+      <main style={{ maxWidth: 720, margin: "0 auto", padding: "48px 24px" }}>
+        {/* Page header */}
+        <div style={{ marginBottom: 32 }}>
+          <h1 style={{
+            fontFamily: "var(--font-display)",
+            fontSize: 32,
+            fontWeight: 400,
+            color: "var(--text)",
+            letterSpacing: "-0.025em",
+            marginBottom: 8,
+          }}>
+            Master CV
+          </h1>
+          <p style={{ fontSize: 14, color: "var(--text-2)", lineHeight: 1.6 }}>
+            Paste your full CV here once. easycv rewrites it for each job without modifying this copy.
+          </p>
         </div>
 
-        <label className="block text-xs text-gray-400 uppercase tracking-wider font-semibold mb-2">
-          Your Master CV
-        </label>
-        <textarea
-          value={cv}
-          onChange={(e) => setCv(e.target.value)}
-          placeholder="Paste your full CV here — formatting does not matter at all. Work history, skills, education, projects, everything."
-          className="w-full min-h-[500px] bg-gray-50 border border-gray-200 rounded-xl p-5 text-gray-800 text-sm leading-7 resize-y focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-all"
-        />
+        {/* Info banner */}
+        <div style={{
+          padding: "14px 16px",
+          background: "var(--accent-light)",
+          border: "1px solid var(--border)",
+          borderLeft: "3px solid var(--accent)",
+          borderRadius: 8,
+          marginBottom: 24,
+          fontSize: 13,
+          color: "var(--text-2)",
+          lineHeight: 1.6,
+        }}>
+          <strong style={{ color: "var(--accent-text)", fontWeight: 600 }}>Tip:</strong>{" "}
+          Formatting doesn't matter. Include everything — work history, skills, education, projects,
+          certifications. The AI will restructure it for each JD.
+        </div>
 
-        <div className="flex items-center gap-5 mt-4">
+        {/* Textarea */}
+        <div style={{ position: "relative" }}>
+          <textarea
+            value={cv}
+            onChange={(e) => setCv(e.target.value)}
+            placeholder="Paste your full CV here..."
+            style={{
+              width: "100%",
+              minHeight: 480,
+              background: "var(--surface)",
+              border: "1px solid var(--border)",
+              borderRadius: 10,
+              padding: "18px 20px",
+              fontSize: 14,
+              color: "var(--text)",
+              lineHeight: 1.75,
+              resize: "vertical",
+              fontFamily: "var(--font-body)",
+              transition: "border-color 0.15s",
+            }}
+            onFocus={e => (e.target.style.borderColor = "var(--accent)")}
+            onBlur={e => (e.target.style.borderColor = "var(--border)")}
+          />
+          {wordCount > 0 && (
+            <div style={{
+              position: "absolute", bottom: 12, right: 14,
+              fontSize: 11, color: "var(--text-muted)",
+              background: "var(--surface)",
+              padding: "2px 6px",
+              borderRadius: 4,
+              pointerEvents: "none",
+            }}>
+              {wordCount.toLocaleString()} words
+            </div>
+          )}
+        </div>
+
+        {/* Actions */}
+        <div style={{ marginTop: 16, display: "flex", alignItems: "center", gap: 12 }}>
           <button
             onClick={handleSave}
             disabled={!cv.trim()}
-            className={`px-8 py-3 rounded-xl text-sm font-bold tracking-wide transition-all ${
-              !cv.trim()
-                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                : saved
-                ? "bg-green-600 text-white"
-                : "bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-200 active:scale-95 cursor-pointer"
-            }`}
+            style={{
+              padding: "10px 22px",
+              borderRadius: 7,
+              fontSize: 14,
+              fontWeight: 500,
+              cursor: cv.trim() ? "pointer" : "not-allowed",
+              border: "none",
+              background: saved ? "var(--ok-bg)" : cv.trim() ? "var(--accent)" : "var(--bg-subtle)",
+              color: saved ? "var(--ok-text)" : cv.trim() ? "white" : "var(--text-muted)",
+              transition: "all 0.15s",
+              letterSpacing: "-0.01em",
+              display: "flex", alignItems: "center", gap: 7,
+            }}
           >
-            {saved ? "✓ Saved" : "Save CV"}
+            {saved ? (
+              <>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                Saved
+              </>
+            ) : "Save CV"}
           </button>
-          {wordCount > 0 && (
-            <span className="text-xs text-gray-400">{wordCount} words loaded</span>
+
+          {cv.trim() && !saved && (
+            <span style={{ fontSize: 12, color: "var(--text-muted)" }}>
+              Ctrl + S to save
+            </span>
           )}
         </div>
       </main>

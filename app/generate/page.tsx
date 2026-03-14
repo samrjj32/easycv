@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { loadCv } from "@/lib/cvStore";
+import Nav from "@/components/Nav";
 import Link from "next/link";
-import { FileText, Sparkles, ClipboardList } from "lucide-react";
 
 export default function GeneratePage() {
   const [jd, setJd] = useState("");
@@ -13,14 +13,12 @@ export default function GeneratePage() {
   const [hasCv, setHasCv] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    setHasCv(!!loadCv());
-  }, []);
+  useEffect(() => { setHasCv(!!loadCv()); }, []);
 
   async function handleGenerate() {
     const cv = loadCv();
-    if (!cv) { setError("Please save your CV first — go to the My CV tab."); return; }
-    if (!jd.trim()) { setError("Please paste a job description."); return; }
+    if (!cv) { setError("Save your CV first — go to the My CV tab."); return; }
+    if (!jd.trim()) { setError("Paste a job description first."); return; }
     setError("");
     setLoading(true);
     try {
@@ -42,89 +40,160 @@ export default function GeneratePage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="h-14 border-b border-gray-200 bg-white flex items-center px-6 shadow-sm">
-        <div className="max-w-[1300px] w-full mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center gap-2 mr-2">
-              <div className="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center">
-                <FileText className="w-4 h-4 text-white" />
-              </div>
-              <span className="font-bold text-gray-900 text-sm tracking-tight">AutoApply</span>
-            </Link>
-            <div className="w-px h-5 bg-gray-200" />
-            <nav className="flex items-center gap-1">
-              <Link href="/" className="px-3 py-1.5 text-xs font-medium rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors">
-                Resume Builder
-              </Link>
-              <Link href="/generate" className="px-3 py-1.5 text-xs font-medium rounded-lg bg-blue-50 text-blue-700">
-                <span className="flex items-center gap-1.5">
-                  <Sparkles className="w-3 h-3" />
-                  AI Generate
-                </span>
-              </Link>
-              <Link href="/profile" className="px-3 py-1.5 text-xs font-medium rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors">
-                My CV
-              </Link>
-              <Link href="/results" className="px-3 py-1.5 text-xs font-medium rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors">
-                <span className="flex items-center gap-1.5">
-                  <ClipboardList className="w-3 h-3" />
-                  Results
-                </span>
-              </Link>
-            </nav>
-          </div>
-        </div>
-      </header>
+    <div style={{ minHeight: "100svh", background: "var(--bg)" }}>
+      <Nav active="/generate" />
 
-      <main className="max-w-[900px] mx-auto px-6 py-8">
-        {/* CV status bar */}
-        <div className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm mb-7 ${
-          hasCv ? "bg-green-50 border border-green-200 text-green-700" : "bg-amber-50 border border-amber-200 text-amber-700"
-        }`}>
-          <span>{hasCv ? "✓" : "⚠"}</span>
-          <span>
-            {hasCv
-              ? "CV loaded — paste a JD below and generate"
-              : "No CV found — go to My CV tab and paste your CV first"}
+      <main style={{ maxWidth: 720, margin: "0 auto", padding: "48px 24px" }}>
+        {/* Page header */}
+        <div style={{ marginBottom: 32 }}>
+          <h1 style={{
+            fontFamily: "var(--font-display)",
+            fontSize: 32,
+            fontWeight: 400,
+            color: "var(--text)",
+            letterSpacing: "-0.025em",
+            marginBottom: 8,
+          }}>
+            Generate application
+          </h1>
+          <p style={{ fontSize: 14, color: "var(--text-2)" }}>
+            Paste a job description below. Your tailored CV and cover letter will be ready in ~15 seconds.
+          </p>
+        </div>
+
+        {/* CV status */}
+        <div style={{
+          display: "flex", alignItems: "center", gap: 10,
+          padding: "12px 16px",
+          background: hasCv ? "var(--ok-bg)" : "var(--accent-light)",
+          border: "1px solid var(--border)",
+          borderLeft: `3px solid ${hasCv ? "var(--ok-text)" : "var(--accent)"}`,
+          borderRadius: 8,
+          marginBottom: 24,
+          fontSize: 13,
+        }}>
+          <div style={{
+            width: 18, height: 18, borderRadius: "50%",
+            background: hasCv ? "var(--ok-text)" : "var(--accent)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            flexShrink: 0,
+          }}>
+            {hasCv ? (
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            ) : (
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+            )}
+          </div>
+          <span style={{ color: "var(--text-2)" }}>
+            {hasCv ? (
+              "CV loaded and ready."
+            ) : (
+              <>
+                No CV found.{" "}
+                <Link href="/profile" style={{ color: "var(--accent)", textDecoration: "underline" }}>
+                  Save your CV →
+                </Link>
+              </>
+            )}
           </span>
         </div>
 
+        {/* Error */}
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-red-600 text-sm mb-6">
-            ⚠ {error}
+          <div style={{
+            padding: "12px 16px",
+            background: "var(--err-bg)",
+            border: "1px solid var(--border)",
+            borderLeft: "3px solid var(--err-text)",
+            borderRadius: 8,
+            marginBottom: 20,
+            fontSize: 13,
+            color: "var(--err-text)",
+          }}>
+            {error}
           </div>
         )}
 
-        <label className="block text-xs text-gray-400 uppercase tracking-wider font-semibold mb-2">
+        {/* Label */}
+        <label style={{
+          display: "block",
+          fontSize: 11, fontWeight: 600,
+          color: "var(--text-muted)",
+          letterSpacing: "0.08em",
+          textTransform: "uppercase",
+          marginBottom: 8,
+        }}>
           Job Description
         </label>
+
+        {/* JD textarea */}
         <textarea
           value={jd}
           onChange={(e) => setJd(e.target.value)}
-          placeholder="Paste the full job description here — title, responsibilities, requirements, company info..."
-          className="w-full min-h-[400px] bg-gray-50 border border-gray-200 rounded-xl p-5 text-gray-800 text-sm leading-7 resize-y focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-all"
+          placeholder="Paste the full job description — title, responsibilities, requirements, company info, everything..."
+          style={{
+            width: "100%",
+            minHeight: 380,
+            background: "var(--surface)",
+            border: "1px solid var(--border)",
+            borderRadius: 10,
+            padding: "18px 20px",
+            fontSize: 14,
+            color: "var(--text)",
+            lineHeight: 1.75,
+            resize: "vertical",
+            fontFamily: "var(--font-body)",
+            transition: "border-color 0.15s",
+            display: "block",
+          }}
+          onFocus={e => (e.target.style.borderColor = "var(--accent)")}
+          onBlur={e => (e.target.style.borderColor = "var(--border)")}
         />
 
-        <button
-          onClick={handleGenerate}
-          disabled={loading || !jd.trim()}
-          className={`mt-4 px-8 py-3 rounded-xl text-sm font-bold tracking-wide transition-all ${
-            loading || !jd.trim()
-              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-              : "bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-200 active:scale-95 cursor-pointer"
-          }`}
-        >
-          {loading ? "Generating..." : "⚡ Generate CV + Cover Letter"}
-        </button>
+        {/* Generate button */}
+        <div style={{ marginTop: 16, display: "flex", alignItems: "center", gap: 14 }}>
+          <button
+            onClick={handleGenerate}
+            disabled={loading || !jd.trim() || !hasCv}
+            style={{
+              display: "flex", alignItems: "center", gap: 8,
+              padding: "11px 22px",
+              borderRadius: 8,
+              fontSize: 14,
+              fontWeight: 500,
+              border: "none",
+              cursor: (loading || !jd.trim() || !hasCv) ? "not-allowed" : "pointer",
+              background: (loading || !jd.trim() || !hasCv) ? "var(--bg-subtle)" : "var(--accent)",
+              color: (loading || !jd.trim() || !hasCv) ? "var(--text-muted)" : "white",
+              transition: "all 0.15s",
+              letterSpacing: "-0.01em",
+            }}
+          >
+            {loading ? (
+              <>
+                <div className="spinner" style={{ width: 14, height: 14, borderTopColor: "white", borderColor: "rgba(255,255,255,0.3)" }} />
+                Generating...
+              </>
+            ) : (
+              <>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                </svg>
+                Generate CV + Cover Letter
+              </>
+            )}
+          </button>
 
-        {loading && (
-          <div className="flex items-center gap-3 text-blue-600 text-sm mt-5">
-            <div className="spinner" />
-            <span>Running both AI calls in parallel — usually 10–20 seconds...</span>
-          </div>
-        )}
+          {loading && (
+            <span style={{ fontSize: 12, color: "var(--text-muted)" }}>
+              Both documents generated in parallel — usually 10–20 seconds
+            </span>
+          )}
+        </div>
       </main>
     </div>
   );
