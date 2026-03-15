@@ -44,9 +44,9 @@ const FEATURES = [
 ];
 
 const STEPS = [
-  { n: "01", label: "Choose a template" },
-  { n: "02", label: "Fill in your details" },
-  { n: "03", label: "Export as PDF" },
+  { n: "01", label: "Upload or paste your CV" },
+  { n: "02", label: "Pick a style" },
+  { n: "03", label: "Edit and export PDF" },
 ];
 
 export default function HomePage() {
@@ -72,11 +72,11 @@ export default function HomePage() {
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-            <Link href="/resume-builder" className="hidden sm:flex" style={{ fontSize: 13, color: "var(--text-2)", textDecoration: "none", padding: "5px 11px", borderRadius: 6 }}>Builder</Link>
-            <Link href="/generate" className="hidden sm:flex" style={{ fontSize: 13, color: "var(--text-2)", textDecoration: "none", padding: "5px 11px", borderRadius: 6 }}>AI Tailor</Link>
-            <div className="hidden sm:block" style={{ width: 1, height: 16, background: "var(--border)", margin: "0 6px" }} />
-            <Link href="/resume-builder" style={{ fontSize: 13, fontWeight: 500, color: "white", textDecoration: "none", padding: "6px 14px", borderRadius: 6, background: "var(--accent)", whiteSpace: "nowrap" }}>
-              Build my CV
+            <Link href="/resume-builder" style={{ fontSize: 13, color: "var(--text-2)", textDecoration: "none", padding: "5px 11px", borderRadius: 6 }}>Builder</Link>
+            <Link href="/generate" style={{ fontSize: 13, color: "var(--text-2)", textDecoration: "none", padding: "5px 11px", borderRadius: 6 }}>AI Tailor</Link>
+            <div style={{ width: 1, height: 16, background: "var(--border)", margin: "0 6px" }} />
+            <Link href="/import" style={{ fontSize: 13, fontWeight: 500, color: "white", textDecoration: "none", padding: "6px 14px", borderRadius: 6, background: "var(--accent)" }}>
+              Import CV
             </Link>
             <ThemeToggle />
           </div>
@@ -106,14 +106,14 @@ export default function HomePage() {
 
           {/* CTAs */}
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 56 }}>
-            <Link href="/resume-builder" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "12px 24px", background: "var(--accent)", color: "white", borderRadius: 8, fontWeight: 500, fontSize: 14, textDecoration: "none", letterSpacing: "-0.01em" }}>
-              Start building — it&apos;s free
+            <Link href="/import" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "12px 24px", background: "var(--accent)", color: "white", borderRadius: 8, fontWeight: 500, fontSize: 14, textDecoration: "none", letterSpacing: "-0.01em" }}>
+              Import my CV
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
               </svg>
             </Link>
-            <Link href="/generate" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "12px 22px", background: "var(--surface)", color: "var(--text)", borderRadius: 8, fontWeight: 500, fontSize: 14, textDecoration: "none", border: "1px solid var(--border)", letterSpacing: "-0.01em" }}>
-              AI-tailor to a job
+            <Link href="/resume-builder" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "12px 22px", background: "var(--surface)", color: "var(--text)", borderRadius: 8, fontWeight: 500, fontSize: 14, textDecoration: "none", border: "1px solid var(--border)", letterSpacing: "-0.01em" }}>
+              Start from scratch
             </Link>
           </div>
 
