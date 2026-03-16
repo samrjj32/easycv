@@ -18,9 +18,17 @@ interface ParsedCv {
     name: string; title: string; email: string; phone: string;
     location: string; employementStatus: string; birthDate: string;
     photo: string; icons: Record<string, string>;
-    photoConfig: { width: number; height: number; aspectRatio: string; borderRadius: string; customBorderRadius: number; visible: boolean };
-    customFields: unknown[]; githubKey: string; githubUseName: string;
-    githubContributionsVisible: boolean; layout: string;
+    photoConfig: { 
+      width: number; 
+      height: number; 
+      aspectRatio: "1:1" | "4:3" | "3:4" | "16:9" | "custom"; 
+      borderRadius: "none" | "medium" | "full" | "custom"; 
+      customBorderRadius: number; 
+      visible: boolean 
+    };
+    customFields: Array<{ id: string; label: string; value: string; icon?: string; visible?: boolean; custom?: boolean }>;
+    githubKey: string; githubUseName: string;
+    githubContributionsVisible: boolean; layout: "left" | "center" | "right";
   };
   summaryContent: string;
   skillContent: string;
@@ -209,7 +217,7 @@ export default function ImportPage() {
       }
 
       // Step 2: Always send to AI — no regex pre-processing
-      setStatus("Parsing your CV with AI…");
+      setStatus("Parsing your CV...");
 
       const res = await fetch("/api/import", {
         method: "POST",
@@ -221,7 +229,7 @@ export default function ImportPage() {
 
       if (!res.ok || !json.data) {
         // If AI fails, show the error clearly rather than silently corrupting data
-        setError(json.error || "AI parsing failed. Please try again.");
+        setError(json.error || "parsing failed. Please try again.");
         setLoading(false);
         return;
       }

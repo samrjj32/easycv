@@ -44,8 +44,12 @@ export async function POST(req: NextRequest) {
         resolve(cleaned);
       });
 
-      parser.on("pdfParser_dataError", (err: { parserError: Error }) => {
-        reject(err.parserError);
+      parser.on("pdfParser_dataError", (errMsg: Error | { parserError: Error }) => {
+        if (errMsg instanceof Error) {
+          reject(errMsg);
+        } else {
+          reject(errMsg.parserError);
+        }
       });
 
       parser.parseBuffer(buffer);

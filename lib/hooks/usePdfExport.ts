@@ -7,6 +7,9 @@ import { useCallback, useRef, useState } from "react";
 
 interface UsePdfExportOptions {
   filename?: string;
+  onePage?: boolean;
+  scale?: number;
+  imageQuality?: number;
 }
 
 interface UsePdfExportReturn {
@@ -118,7 +121,11 @@ function prepareClone(el: HTMLElement): HTMLElement {
 
 // ── Hook ─────────────────────────────────────────────────────────────────────
 
-export function usePdfExport({ filename = "resume" }: UsePdfExportOptions = {}): UsePdfExportReturn {
+export function usePdfExport({ 
+  filename = "resume",
+  scale = 2,
+  imageQuality = 0.98
+}: UsePdfExportOptions = {}): UsePdfExportReturn {
   const exportRef = useRef<HTMLDivElement>(null);
   const [isExporting, setIsExporting] = useState(false);
 
@@ -178,11 +185,11 @@ export function usePdfExport({ filename = "resume" }: UsePdfExportOptions = {}):
           .set({
             margin: 0,
             filename: `${filename}.pdf`,
-            image: { type: "jpeg", quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true, scrollX: 0, scrollY: -window.scrollY },
+            image: { type: "jpeg", quality: imageQuality },
+            html2canvas: { scale, useCORS: true, scrollX: 0, scrollY: -window.scrollY },
             jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
             pagebreak: { mode: ["avoid-all", "css", "legacy"] },
-          })
+          } as any)
           .from(exportRef.current!)
           .save();
       } catch (fallbackErr) {

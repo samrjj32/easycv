@@ -10,9 +10,17 @@ export interface ParsedCv {
     name: string; title: string; email: string; phone: string;
     location: string; employementStatus: string; birthDate: string;
     photo: string; icons: Record<string, string>;
-    photoConfig: { width: number; height: number; aspectRatio: string; borderRadius: string; customBorderRadius: number; visible: boolean };
-    customFields: unknown[]; githubKey: string; githubUseName: string;
-    githubContributionsVisible: boolean; layout: string;
+    photoConfig: { 
+      width: number; 
+      height: number; 
+      aspectRatio: "1:1" | "4:3" | "3:4" | "16:9" | "custom"; 
+      borderRadius: "none" | "medium" | "full" | "custom"; 
+      customBorderRadius: number; 
+      visible: boolean 
+    };
+    customFields: Array<{ id: string; label: string; value: string; icon?: string; visible?: boolean; custom?: boolean }>;
+    githubKey: string; githubUseName: string;
+    githubContributionsVisible: boolean; layout: "left" | "center" | "right";
   };
   summaryContent: string;
   skillContent: string;
@@ -248,7 +256,7 @@ function parseSkills(lines: string[]): string {
       .filter(s => s.length > 1 && s.length < 50 && !/^\d+$/.test(s));
     all.push(...parts);
   }
-  return [...new Set(all)].join(", ");
+  return Array.from(new Set(all)).join(", ");
 }
 
 // ── Education parser ──────────────────────────────────────────────────────────

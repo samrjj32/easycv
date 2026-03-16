@@ -49,11 +49,11 @@ function maybeCleanup() {
   if (cleanupCounter < 100) return;
   cleanupCounter = 0;
   const now = Date.now();
-  for (const [ip, record] of rateLimitStore.entries()) {
+  rateLimitStore.forEach((record, ip) => {
     if (now - record.windowStart > WINDOW_MS) {
       rateLimitStore.delete(ip);
     }
-  }
+  });
 }
 
 // ─────────────────────────────────────────────────────────
