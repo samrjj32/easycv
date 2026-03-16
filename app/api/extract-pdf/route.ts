@@ -1,7 +1,5 @@
 // app/api/extract-pdf/route.ts
 // Uses pdf2json — pure Node.js, zero pdfjs dependency, zero webpack issues.
-// Install: npm install pdf2json
-// Install: npm install --save-dev @types/pdf2json
 
 import { NextRequest, NextResponse } from "next/server";
 
@@ -23,19 +21,26 @@ export async function POST(req: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // pdf2json — pure Node.js, no pdfjs inside, no webpack conflict
     const PDFParser = (await import("pdf2json")).default;
     const text = await new Promise<string>((resolve, reject) => {
-      const parser = new PDFParser(null, true); // true = raw text mode
+      const parser = new PDFParser(null, true);
 
       parser.on("pdfParser_dataReady", () => {
-        // getRawTextContent() returns all text with page breaks
         const raw: string = (parser as unknown as { getRawTextContent: () => string }).getRawTextContent();
-        // Clean up pdf2json's URL-encoded spaces (%20) and other artifacts
-        const cleaned = decodeURIComponent(raw)
+
+        // Safe decode — replaces %XX tokens one by one, never throws on malformed sequences
+        const cleaned = raw
+          .replace(/%([0-9A-Fa-f]{2})/g, (_, hex) => {
+            try {
+              return decodeURIComponent(`%${hex}`);
+            } catch {
+              return `%${hex}`; // keep as-is if malformed
+            }
+          })
           .replace(/\r\n/g, "\n")
           .replace(/\n{3,}/g, "\n\n")
           .trim();
+
         resolve(cleaned);
       });
 
@@ -43,7 +48,6 @@ export async function POST(req: NextRequest) {
         reject(err.parserError);
       });
 
-      // Parse from buffer
       parser.parseBuffer(buffer);
     });
 

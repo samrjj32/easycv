@@ -10,7 +10,7 @@ const FEATURES = [
         <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 13h6M9 17h4"/>
       </svg>
     ),
-    title: "7 professional templates",
+    title: "Professional templates",
     desc: "Pick a design that fits your industry. Minimal, classic, timeline, creative — all ATS-friendly.",
   },
   {
@@ -35,11 +35,13 @@ const FEATURES = [
   {
     icon: (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="17 8 12 3 7 8"/>
+        <line x1="12" y1="3" x2="12" y2="15"/>
       </svg>
     ),
-    title: "AI tailoring per job",
-    desc: "Paste a job description and get your CV rewritten with matched keywords and a cover letter.",
+    title: "Import your existing CV",
+    desc: "Upload a PDF or Word file. AI reads it and fills the builder automatically — in seconds.",
   },
 ];
 
@@ -67,16 +69,17 @@ export default function HomePage() {
               </svg>
             </div>
             <span style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 19, fontWeight: 400, color: "var(--text)", letterSpacing: "-0.02em" }}>
-              easycv
+              EasyCV
             </span>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-            <Link href="/resume-builder" style={{ fontSize: 13, color: "var(--text-2)", textDecoration: "none", padding: "5px 11px", borderRadius: 6 }}>Builder</Link>
-            <Link href="/generate" style={{ fontSize: 13, color: "var(--text-2)", textDecoration: "none", padding: "5px 11px", borderRadius: 6 }}>AI Tailor</Link>
-            <div style={{ width: 1, height: 16, background: "var(--border)", margin: "0 6px" }} />
-            <Link href="/import" style={{ fontSize: 13, fontWeight: 500, color: "white", textDecoration: "none", padding: "6px 14px", borderRadius: 6, background: "var(--accent)" }}>
-              Import CV
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <Link href="/resume-builder" style={{
+              fontSize: 13, color: "var(--text-2)", textDecoration: "none",
+              padding: "5px 12px", borderRadius: 6,
+              border: "1px solid var(--border)", background: "var(--surface)",
+            }}>
+              Builder
             </Link>
             <ThemeToggle />
           </div>
@@ -87,13 +90,11 @@ export default function HomePage() {
       <main style={{ flex: 1 }}>
         <div style={{ maxWidth: 1000, margin: "0 auto", padding: "80px 24px 64px" }}>
 
-          {/* Badge */}
           <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "4px 12px", border: "1px solid var(--border)", borderRadius: 100, marginBottom: 28, background: "var(--surface)" }}>
             <div style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--accent)" }} />
             <span style={{ fontSize: 12, color: "var(--text-2)", fontWeight: 500, letterSpacing: "0.02em" }}>Free · No sign-up · Exports to PDF</span>
           </div>
 
-          {/* Headline */}
           <h1 style={{ fontFamily: "var(--font-display)", fontSize: "clamp(44px, 7.5vw, 80px)", fontWeight: 400, lineHeight: 1.0, letterSpacing: "-0.035em", color: "var(--text)", maxWidth: 680, marginBottom: 22 }}>
             Build a great CV,{" "}
             <em style={{ fontStyle: "italic", color: "var(--accent)" }}>fast.</em>
@@ -104,7 +105,6 @@ export default function HomePage() {
             No clunky editors. No paywalls. Just your CV, done right.
           </p>
 
-          {/* CTAs */}
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 56 }}>
             <Link href="/import" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "12px 24px", background: "var(--accent)", color: "white", borderRadius: 8, fontWeight: 500, fontSize: 14, textDecoration: "none", letterSpacing: "-0.01em" }}>
               Import my CV
@@ -117,7 +117,6 @@ export default function HomePage() {
             </Link>
           </div>
 
-          {/* Steps */}
           <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 0, marginBottom: 64 }}>
             {STEPS.map((s, i) => (
               <div key={s.n} style={{ display: "flex", alignItems: "center" }}>
@@ -130,7 +129,6 @@ export default function HomePage() {
             ))}
           </div>
 
-          {/* Features */}
           <div style={{ borderTop: "1px solid var(--border)", paddingTop: 40 }}>
             <p style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 20 }}>
               Everything included
@@ -150,7 +148,6 @@ export default function HomePage() {
         </div>
       </main>
 
-      {/* Footer */}
       <footer style={{ borderTop: "1px solid var(--border)", padding: "20px 24px", textAlign: "center" }}>
         <p style={{ fontSize: 12, color: "var(--text-muted)" }}>
           easycv · Your data stays in your browser · Free forever

@@ -141,7 +141,16 @@ export function SidePanel({ isCollapsed, onExpand }: SidePanelProps) {
         <div style={{ paddingTop: 4 }}>
           {basicSection && <ModuleItem item={basicSection} isBasic isActive={activeSection === basicSection.id} onSelect={() => handleSelect(basicSection.id)} onToggle={e => { e.stopPropagation(); toggleSectionVisibility(basicSection.id); }} />}
           <Reorder.Group axis="y" values={draggableSections}
-            onReorder={newOrder => updateResume(activeResumeId!, { menuSections: [...menuSections.filter(s => s.id === "basic"), ...newOrder] })}
+            onReorder={newOrder => {
+              // Update the `order` property so templates re-render in the new order
+              const withOrder = newOrder.map((s, i) => ({ ...s, order: i + 1 }));
+              updateResume(activeResumeId!, {
+                menuSections: [
+                  ...menuSections.filter(s => s.id === "basic").map(s => ({ ...s, order: 0 })),
+                  ...withOrder,
+                ],
+              });
+            }}
             style={{ listStyle: "none", padding: 0, margin: 0 }}>
             <AnimatePresence>
               {draggableSections.map(item => (

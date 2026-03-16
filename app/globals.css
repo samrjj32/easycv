@@ -124,11 +124,18 @@ textarea, input, select, button {
   background: white;
 }
 
-.a4-page-container > div { min-height: 1123px; }
+/* Each page gets bottom padding so content never rides the cut line */
+.a4-page-container > div {
+  min-height: 1123px;
+  padding-bottom: 60px;
+}
 
 /* ── Print ─────────────────────────────────────────────── */
 @media print {
-  @page { size: A4; margin: 0; }
+  @page {
+    size: A4;
+    margin: 0;
+  }
 
   body {
     background: white !important;
@@ -146,17 +153,40 @@ textarea, input, select, button {
   .a4-page-container > div {
     box-shadow: none !important;
     min-height: auto;
+    /* Ensure breathing room before each page break */
+    padding-bottom: 0;
   }
 
+  /* Prevent content orphaning at page breaks */
+  p, li {
+    orphans: 3;
+    widows: 3;
+  }
+
+  /* Keep entry headers with their content */
   .a4-page-container section { page-break-inside: auto; break-inside: auto; }
+
   .a4-page-container [style*="marginBottom"],
   .a4-page-container section > div > div { page-break-inside: avoid; break-inside: avoid; }
+
+  /* Each job/education/project entry stays together */
   .a4-page-container li { page-break-inside: avoid; break-inside: avoid; }
+
   .a4-page-container h1,
   .a4-page-container h2,
   .a4-page-container h3,
-  .a4-page-container h4 { page-break-after: avoid; break-after: avoid; }
+  .a4-page-container h4 {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
   .a4-page-container header { page-break-inside: avoid; break-inside: avoid; }
+
+  /* Add space before page break to avoid content being clipped */
+  .a4-page-container section {
+    margin-bottom: 8px;
+  }
+
   .no-print { display: none !important; }
 }
 
