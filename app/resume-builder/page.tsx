@@ -8,30 +8,83 @@ import { useReactToPrint } from "react-to-print";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, Suspense, useRef, useState } from "react";
 import Link from "next/link";
-import { FileText, ChevronLeft, ChevronRight, Pencil, Undo, Redo, Download, Sparkles, RotateCcw } from "lucide-react";
-import QuickPinchZoom, { make3dTransformValue } from "react-quick-pinch-zoom";
+import { FileText, ChevronLeft, ChevronRight, Pencil, Undo, Redo, Download, Sparkles } from "lucide-react";
 import { SidePanel } from "@/components/resume-builder/SidePanel";
 import { EditPanel } from "@/components/resume-builder/EditPanel";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
+
+// Forces the print iframe to render at 794px (A4 width) regardless of device screen width.
+// Without this, mobile browsers set the iframe viewport to ~390px and squash the CV.
+const PRINT_STYLE = `
+  @page { size: A4; margin: 0; }
+  html, body {
+    width: 794px !important;
+    min-width: 794px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .a4-page-container {
+    width: 794px !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    min-height: auto !important;
+  }
+  .a4-page-container > div {
+    box-shadow: none !important;
+    min-height: auto !important;
+  }
+  .page-break-line { display: none !important; }
+  .a4-page-container section { page-break-inside: auto; break-inside: auto; }
+  .a4-page-container li { page-break-inside: avoid; break-inside: avoid; }
+  .a4-page-container h1,
+  .a4-page-container h2,
+  .a4-page-container h3,
+  .a4-page-container h4 { page-break-after: avoid; break-after: avoid; }
+`;
 
 function ResumeBuilderInner() {
   const { activeResume, setActiveResume, createResume, updateResume, mobileEditorView } = useResumeStore();
   const searchParams = useSearchParams();
   const router = useRouter();
   const resumeRef = useRef<HTMLDivElement>(null);
-  const pinchZoomRef = useRef<any>(null);
   const [mobileTab, setMobileTab] = useState<"edit" | "preview">("edit");
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(true);
+  const [mobileScale, setMobileScale] = useState(0.45);
+  const [contentHeight, setContentHeight] = useState(1123);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const onUpdate = ({ x, y, scale }: { x: number; y: number; scale: number }) => {
-    const el = document.getElementById("zoom-target");
-    if (el) el.style.transform = make3dTransformValue({ x, y, scale });
-  };
+  // Calculate scale to fit CV width on mobile screen
+  useEffect(() => {
+    const updateScale = () => {
+      setMobileScale(Math.min(1, (window.innerWidth - 16) / 794));
+    };
+    updateScale();
+    window.addEventListener("resize", updateScale);
+    return () => window.removeEventListener("resize", updateScale);
+  }, []);
+
+  // Track CV content height for scroll compensation
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setContentHeight(entry.contentRect.height);
+      }
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [activeResume?.templateId]);
 
   const handlePrint = useReactToPrint({
     contentRef: resumeRef,
     documentTitle: activeResume?.title || "resume",
+    // This pageStyle is injected into the print iframe — forces A4 viewport on mobile
+    pageStyle: PRINT_STYLE,
   });
 
   useEffect(() => {
@@ -84,10 +137,7 @@ function ResumeBuilderInner() {
         gap: 12,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <Link href="/" style={{
-            display: "flex", alignItems: "center", gap: 6,
-            textDecoration: "none",
-          }}>
+          <Link href="/" style={{ display: "flex", alignItems: "center", gap: 6, textDecoration: "none" }}>
             <div style={{
               width: 22, height: 22,
               background: "var(--accent)", borderRadius: 4,
@@ -97,8 +147,7 @@ function ResumeBuilderInner() {
             </div>
             <span className="hidden sm:block" style={{
               fontSize: 13, fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 400,
-              color: "var(--text)",
-              letterSpacing: "-0.02em",
+              color: "var(--text)", letterSpacing: "-0.02em",
             }}>
               easycv
             </span>
@@ -197,40 +246,24 @@ function ResumeBuilderInner() {
           )}
           style={{ background: "var(--bg-subtle)" }}
         >
-          {/* Mobile reset view */}
-          <div className="absolute top-3 right-3 z-30 flex flex-col gap-2 lg:hidden">
-            <button
-              onClick={() => pinchZoomRef.current?.alignCenter()}
-              style={{
-                width: 36, height: 36,
-                borderRadius: "50%",
-                background: "var(--surface)",
-                border: "1px solid var(--border)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                color: "var(--text-2)", cursor: "pointer",
-              }}
-            >
-              <RotateCcw size={14} />
-            </button>
-          </div>
-
           <div style={{ width: "100%", height: "100%", overflowY: "auto", overflowX: "hidden" }}>
-            {/* Mobile pinch zoom */}
-            <div className="w-full h-full block lg:hidden">
-              <QuickPinchZoom
-                ref={pinchZoomRef}
-                onUpdate={onUpdate}
-                containerProps={{ style: { width: "100%", height: "100%", background: "var(--bg-subtle)" } }}
-              >
-                <div id="zoom-target" className="origin-top-left p-4">
-                  <div className="shadow-2xl bg-white mx-auto" style={{ width: 794 }}>
-                    <TemplateRenderer resumeRef={resumeRef} />
-                  </div>
+
+            {/* ── Mobile: scale-to-fit PDF viewer style ── */}
+            <div className="block lg:hidden" style={{ paddingTop: 12, paddingBottom: 24 }}>
+              <div style={{
+                width: 794,
+                transformOrigin: "top center",
+                transform: `scale(${mobileScale})`,
+                marginBottom: `${(mobileScale - 1) * contentHeight}px`,
+                marginLeft: `${(794 * mobileScale - 794) / 2}px`,
+              }}>
+                <div ref={containerRef} className="shadow-xl bg-white">
+                  <TemplateRenderer resumeRef={resumeRef} />
                 </div>
-              </QuickPinchZoom>
+              </div>
             </div>
 
-            {/* Desktop static */}
+            {/* ── Desktop: static scaled view ── */}
             <div className="hidden lg:flex flex-col items-center w-full" style={{ padding: 24 }}>
               <div
                 className="origin-top shadow-xl transition-transform bg-white"
